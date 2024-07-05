@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-k8s-prom
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-k8s-prom
+  template:
+    metadata:
+      labels:
+        app: fastapi-k8s-prom
+    spec:
+      containers:
+      - name: fastapi-k8s-prom
+        image: fastapi-k8s-prom:latest
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-k8s-prom
+spec:
+  selector:
+    app: fastapi-k8s-prom
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
