@@ -25,6 +25,11 @@ pod_gauge = Gauge('running_pods', 'Number of running pods', registry=registry)
 
 @app.post("/createDeployment/{deployment_name}")
 async def create_deployment(deployment_name: str):
+    # Ensure deployment name is valid
+    deployment_name = deployment_name.strip()
+    if not deployment_name.isalnum():
+        raise HTTPException(status_code=400, detail="Invalid deployment name. It must be alphanumeric.")
+    
     # Define the deployment
     deployment = client.V1Deployment(
         metadata=client.V1ObjectMeta(name=deployment_name),
@@ -41,7 +46,7 @@ async def create_deployment(deployment_name: str):
                     containers=[
                         client.V1Container(
                             name=deployment_name,
-                            image="nginx:latest",  # You can change this to any image you prefer
+                            image="flask-app",  # You can change this to any image you prefer
                             ports=[client.V1ContainerPort(container_port=80)]
                         )
                     ]
@@ -68,6 +73,7 @@ async def get_prom_details():
     
     # Update Prometheus gauge
     pod_gauge.set(len(running_pods))
+
     # Fetch metrics from Prometheus
     try:
         prometheus_url = 'http://localhost:3001/api/v1/query'
@@ -81,7 +87,7 @@ async def get_prom_details():
         }
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Error fetching Prometheus data: {str(e)}")
-print("Starting FastAPI server...")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

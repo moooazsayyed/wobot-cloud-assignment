@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deployment Form</title>
+    <script>
+        async function createDeployment() {
+            const deploymentName = document.getElementById("deploymentName").value;
+            const response = await fetch('/createDeployment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ deployment_name: deploymentName })
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        }
+    </script>
+</head>
+<body>
+    <h1>Create Kubernetes Deployment</h1>
+    <form onsubmit="event.preventDefault(); createDeployment();">
+        <label for="deploymentName">Deployment Name:</label>
+        <input type="text" id="deploymentName" name="deploymentName" required>
+        <button type="submit">Create Deployment</button>
+    </form>
+</body>
+</html>
